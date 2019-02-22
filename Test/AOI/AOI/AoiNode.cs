@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -12,6 +13,8 @@ namespace AOI
         public AoiInfo AoiInfo;
 
         public AoiLink Link;
+        
+        public AoiNode(){}
 
         public AoiNode Init(long id, float x, float y)
         {
@@ -19,20 +22,43 @@ namespace AOI
 
             Position = new Vector2(x, y);
 
-            AoiInfo = new AoiInfo {MovesSet = new HashSet<long>(), MoveOnlySet = new HashSet<long>()};
+            if (AoiInfo.MovesSet == null)
+            {
+                AoiInfo.MovesSet = new HashSet<long>();
+            }
 
-            Link = new AoiLink();
+            if (AoiInfo.MoveOnlySet == null)
+            {
+                AoiInfo.MoveOnlySet = new HashSet<long>();
+            }
 
             return this;
         }
 
-        public Vector2 SetPosition(float x, float y)
+        public void SetPosition(float x, float y)
         {
             Position.X = x;
 
             Position.Y = y;
+        }
 
-            return Position;
+        public void Dispose()
+        {
+            Id = 0;
+            
+            AoiPool.Instance.Recycle(Link.XNode);
+            
+            AoiPool.Instance.Recycle(Link.YNode);
+            
+            Link.XNode = null;
+
+            Link.YNode = null;
+            
+            AoiInfo.MovesSet.Clear();
+            
+            AoiInfo.MoveOnlySet.Clear();
+            
+            AoiPool.Instance.Recycle(this);
         }
     }
 }
